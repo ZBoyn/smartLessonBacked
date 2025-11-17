@@ -28,4 +28,9 @@
             course_name;
     </select>
 
+    <select id="findCourseById" parameterType="int"
+            resultType="com.neu.smartLesson.model.Course">
+        SELECT * FROM Courses WHERE course_id = #{courseId}
+    </select>
+
 </mapper>

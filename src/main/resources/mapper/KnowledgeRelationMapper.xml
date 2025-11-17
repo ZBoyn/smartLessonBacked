@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neu.smartLesson.mapper.KnowledgeRelationMapper">
+
+    <resultMap id="KnowledgeRelationResultMap" type="com.neu.smartLesson.model.KnowledgeRelation">
+        <id property="relationId" column="relation_id" />
+        <result property="sourceKpId" column="source_kp_id" />
+        <result property="targetKpId" column="target_kp_id" />
+        <result property="relationType" column="relation_type" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+    </resultMap>
+
+    <insert id="insertRelation" parameterType="com.neu.smartLesson.model.KnowledgeRelation"
+            useGeneratedKeys="true" keyProperty="relationId">
+        INSERT INTO KnowledgeRelations (source_kp_id, target_kp_id, relation_type)
+        VALUES (
+        #{sourceKpId},
+        #{targetKpId},
+        #{relationType, typeHandler=org.apache.ibatis.type.EnumTypeHandler}
+        )
+    </insert>
+
+    <delete id="deleteRelationById" parameterType="int">
+        DELETE FROM KnowledgeRelations WHERE relation_id = #{relationId}
+    </delete>
+
+    <select id="findRelationById" parameterType="int" resultMap="KnowledgeRelationResultMap">
+        SELECT * FROM KnowledgeRelations WHERE relation_id = #{relationId}
+    </select>
+
+    <select id="findRelationsByCourseId" parameterType="int" resultMap="KnowledgeRelationResultMap">
+        SELECT
+        r.relation_id,
+        r.source_kp_id,
+        r.target_kp_id,
+        r.relation_type
+        FROM
+        KnowledgeRelations r
+        JOIN
+        KnowledgePoints kp ON r.source_kp_id = kp.kp_id
+        WHERE
+        kp.course_id = #{courseId}
+    </select>
+
+</mapper>

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface CourseMapper {
@@ -23,4 +24,9 @@ public interface CourseMapper {
      * @return 该教师的课程列表
      */
     List<Course> findCoursesByCreatorId(@Param("creatorId") Integer creatorId);
+
+    /**
+     * 根据ID查询课程 (用于鉴权)
+     */
+    Optional<Course> findCourseById(@Param("courseId") Integer courseId);
 }

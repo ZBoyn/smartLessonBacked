@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neu.smartLesson.mapper.KnowledgePointMapper">
+
+    <resultMap id="KnowledgePointResultMap" type="com.neu.smartLesson.model.KnowledgePoint">
+        <id property="kpId" column="kp_id" />
+        <result property="courseId" column="course_id" />
+        <result property="name" column="name" />
+        <result property="description" column="description" />
+    </resultMap>
+
+    <insert id="insertKnowledgePoint" parameterType="com.neu.smartLesson.model.KnowledgePoint"
+            useGeneratedKeys="true" keyProperty="kpId">
+        INSERT INTO KnowledgePoints (course_id, name, description)
+        VALUES (#{courseId}, #{name}, #{description})
+    </insert>
+
+    <update id="updateKnowledgePoint" parameterType="com.neu.smartLesson.model.KnowledgePoint">
+        UPDATE KnowledgePoints
+        SET
+        name = #{name},
+        description = #{description}
+        WHERE
+        kp_id = #{kpId}
+    </update>
+
+    <delete id="deleteKnowledgePointById" parameterType="int">
+        DELETE FROM KnowledgePoints WHERE kp_id = #{kpId}
+    </delete>
+
+    <select id="findKnowledgePointsByCourseId" parameterType="int" resultMap="KnowledgePointResultMap">
+        SELECT kp_id, course_id, name, description
+        FROM KnowledgePoints
+        WHERE course_id = #{courseId}
+        ORDER BY name
+    </select>
+
+    <select id="findKnowledgePointById" parameterType="int" resultMap="KnowledgePointResultMap">
+        SELECT kp_id, course_id, name, description
+        FROM KnowledgePoints
+        WHERE kp_id = #{kpId}
+    </select>
+
+</mapper>
