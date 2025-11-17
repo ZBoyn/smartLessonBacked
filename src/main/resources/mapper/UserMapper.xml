@@ -6,16 +6,43 @@
 <mapper namespace="com.neu.smartLesson.mapper.UserMapper">
 
     <resultMap id="UserResultMap" type="com.neu.smartLesson.model.User">
-        <id property="userId" column="user_id" />
-        <result property="role" column="role" typeHandler="org.apache.ibatis.type.EnumTypeHandler"/>
+        <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="fullName" column="full_name"/>
+        <result property="email" column="email"/>
+        <result property="role" column="role"/>
+        <result property="createdAt" column="created_at"/>
     </resultMap>
 
     <select id="findByUsername" parameterType="string" resultMap="UserResultMap">
-        SELECT * FROM Users WHERE username = #{username}
+        SELECT
+            user_id,
+            username,
+            password_hash,
+            full_name,
+            email,
+            UPPER(role) as role,
+            created_at
+        FROM
+            Users
+        WHERE
+            username = #{username}
     </select>
 
     <select id="findByEmail" parameterType="string" resultMap="UserResultMap">
-        SELECT * FROM Users WHERE email = #{email}
+        SELECT
+            user_id,
+            username,
+            password_hash,
+            full_name,
+            email,
+            UPPER(role) as role,
+            created_at
+        FROM
+            Users
+        WHERE
+            email = #{email}
     </select>
 
     <insert id="insertUser" parameterType="com.neu.smartLesson.model.User"
@@ -23,7 +50,7 @@
         INSERT INTO Users
             (username, password_hash, full_name, email, role)
         VALUES
-            (#{username}, #{passwordHash}, #{fullName}, #{email}, #{role, typeHandler=org.apache.ibatis.type.EnumTypeHandler})
+            (#{username}, #{passwordHash}, #{fullName}, #{email}, LOWER(#{role}))
     </insert>
 
 </mapper>

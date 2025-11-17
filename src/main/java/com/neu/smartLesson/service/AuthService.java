@@ -13,5 +13,9 @@ public interface AuthService {
      */
     LoginResponse login(LoginRequest loginRequest);
 
+    /**
+     * 处理用户注册
+     * @param registerRequest 注册请求 DTO
+     */
     void register(RegisterRequest registerRequest);
 }

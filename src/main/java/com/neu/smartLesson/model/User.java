@@ -36,8 +36,6 @@ public class User implements UserDetails {
         return this.passwordHash;
     }
 
-    // getUsername() 已由 @Data (lombok) 提供
-
     @Override
     public boolean isAccountNonExpired() {
         return true;

@@ -6,7 +6,7 @@ import com.neu.smartLesson.dto.LoginRequest;
 import com.neu.smartLesson.dto.LoginResponse;
 import com.neu.smartLesson.dto.RegisterRequest;
 import com.neu.smartLesson.exception.RegistrationException;
-import com.neu.smartLesson.mapper.AuthMapper;
+import com.neu.smartLesson.mapper.AuthDtoMapper;
 import com.neu.smartLesson.mapper.UserMapper;
 import com.neu.smartLesson.model.User;
 import com.neu.smartLesson.service.AuthService;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private AuthMapper authMapper;
+    private AuthDtoMapper authMapper;
 
     @Autowired
     private UserMapper userMapper;

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neu.smartLesson.mapper.CourseMapper">
+
+    <insert id="insertCourse" parameterType="com.neu.smartLesson.model.Course"
+            useGeneratedKeys="true" keyProperty="courseId">
+        INSERT INTO Courses
+            (course_name, description, creator_id)
+        VALUES
+            (#{courseName}, #{description}, #{creatorId})
+    </insert>
+
+    <select id="findCoursesByCreatorId" parameterType="int"
+            resultType="com.neu.smartLesson.model.Course">
+        SELECT
+            course_id,
+            course_name,
+            description,
+            creator_id
+        FROM
+            Courses
+        WHERE
+            creator_id = #{creatorId}
+        ORDER BY
+            course_name;
+    </select>
+
+</mapper>

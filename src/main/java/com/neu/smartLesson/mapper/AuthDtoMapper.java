@@ -5,7 +5,7 @@ import com.neu.smartLesson.model.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthMapper {
+public class AuthDtoMapper {
 
     /**
      * 将 User 实体 转换为 AuthUserDto

@@ -41,8 +41,8 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 角色权限: 教师端 API
-                        .requestMatchers("/teacher/**").hasRole("teacher")
-                        .requestMatchers("/student/**").hasRole("student")
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/student/**").hasRole("STUDENT")
 
                         // 其他所有请求都必须经过认证
                         .anyRequest().authenticated()
