@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neu.smartLesson.mapper.ResourceMapper">
+
+    <insert id="insertResource" parameterType="com.neu.smartLesson.model.Resource"
+            useGeneratedKeys="true" keyProperty="resourceId">
+        INSERT INTO Resources
+        (course_id, title, resource_type, file_path, uploaded_by_id)
+        VALUES
+        (#{courseId}, #{title}, #{resourceType}, #{filePath}, #{uploadedById})
+    </insert>
+
+    <select id="findResourcesByCourseId" parameterType="int"
+            resultType="com.neu.smartLesson.model.Resource">
+        SELECT * FROM Resources WHERE course_id = #{courseId} ORDER BY created_at
+    </select>
+
+    <select id="findResourceById" parameterType="int"
+            resultType="com.neu.smartLesson.model.Resource">
+        SELECT * FROM Resources WHERE resource_id = #{resourceId}
+    </select>
+
+    <delete id="deleteResourceById" parameterType="int">
+        DELETE FROM Resources WHERE resource_id = #{resourceId}
+    </delete>
+
+</mapper>

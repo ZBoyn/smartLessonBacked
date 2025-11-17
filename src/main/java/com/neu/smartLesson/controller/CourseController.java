@@ -24,8 +24,8 @@ public class CourseController {
     private CourseService courseService;
 
     /**
-     * POST /teacher/courses
      * (US-T01) 教师创建新课程
+     * POST /teacher/courses
      */
     @PostMapping
     public ResponseEntity<CourseResponseDto> createCourse(
@@ -39,8 +39,8 @@ public class CourseController {
     }
 
     /**
-     * GET /teacher/courses
      * (US-T02) 教师查看自己创建的课程列表
+     * GET /teacher/courses
      */
     @GetMapping
     public ResponseEntity<List<CourseResponseDto>> getMyCourses() {

@@ -2,6 +2,8 @@ package com.neu.smartLesson.service;
 
 import com.neu.smartLesson.dto.CourseResponseDto;
 import com.neu.smartLesson.dto.CreateCourseRequestDto;
+import com.neu.smartLesson.model.Course;
+
 import java.util.List;
 
 public interface CourseService {
@@ -20,4 +22,10 @@ public interface CourseService {
      * @return 课程 DTO 列表
      */
     List<CourseResponseDto> getCoursesForTeacher(Integer creatorId);
+
+    /**
+     * 检查一个课程是否属于某个教师，如果不属于则抛出异常。
+     * @return 返回 Course 对象以便复用
+     */
+    Course checkCourseOwnership(Integer courseId, Integer teacherId);
 }

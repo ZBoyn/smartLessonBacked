@@ -21,8 +21,8 @@ public class AuthController {
     private AuthService authService;
 
     /**
-     * POST /auth/login
      * 用户登录接口 (US01, US02)
+     * POST /auth/login
      */
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -31,8 +31,8 @@ public class AuthController {
     }
 
     /**
-     * POST /auth/register
      * 用户注册接口 (US_Supplement01)
+     * POST /auth/register
      */
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest) {

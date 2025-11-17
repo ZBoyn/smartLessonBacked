@@ -24,8 +24,8 @@ public class ClassController {
     private ClassService classService;
 
     /**
-     * POST /teacher/courses/{courseId}/classes
      * (US-T05) 教师为特定课程创建新班级
+     * POST /teacher/courses/{courseId}/classes
      */
     @PostMapping
     public ResponseEntity<ClassResponseDto> createClass(
@@ -44,8 +44,8 @@ public class ClassController {
     }
 
     /**
-     * GET /teacher/courses/{courseId}/classes
      *  (US-T06) 教师查看特定课程下的所有班级
+     * GET /teacher/courses/{courseId}/classes
      */
     @GetMapping
     public ResponseEntity<List<ClassResponseDto>> getClassesForCourse(

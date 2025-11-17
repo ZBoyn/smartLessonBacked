@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.neu.smartLesson.mapper.EnrollmentMapper">
+
+    <select id="checkEnrollment" parameterType="map" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            Enrollments e
+                JOIN
+            Classes c ON e.class_id = c.class_id
+        WHERE
+            e.student_id = #{studentId}
+          AND c.course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+</mapper>

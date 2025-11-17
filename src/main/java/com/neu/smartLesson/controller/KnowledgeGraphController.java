@@ -24,8 +24,8 @@ public class KnowledgeGraphController {
     private KnowledgeGraphService kgService;
 
     /**
-     * POST /teacher/courses/{courseId}/knowledge-points
      * (US-T07) 在课程中创建新知识点 (节点)
+     * POST /teacher/courses/{courseId}/knowledge-points
      */
     @PostMapping("/courses/{courseId}/knowledge-points")
     public ResponseEntity<KnowledgePointDto> createKnowledgePoint(
@@ -38,8 +38,8 @@ public class KnowledgeGraphController {
     }
 
     /**
-     * PUT /teacher/knowledge-points/{kpId}
      * (US-T10) 更新一个知识点 (节点)
+     * PUT /teacher/knowledge-points/{kpId}
      */
     @PutMapping("/knowledge-points/{kpId}")
     public ResponseEntity<KnowledgePointDto> updateKnowledgePoint(
@@ -52,8 +52,8 @@ public class KnowledgeGraphController {
     }
 
     /**
-     * DELETE /teacher/knowledge-points/{kpId}
      * (US-T10) 删除一个知识点 (节点)
+     * DELETE /teacher/knowledge-points/{kpId}
      */
     @DeleteMapping("/knowledge-points/{kpId}")
     public ResponseEntity<Void> deleteKnowledgePoint(@PathVariable Integer kpId) {
@@ -64,8 +64,8 @@ public class KnowledgeGraphController {
     }
 
     /**
-     * POST /teacher/courses/{courseId}/knowledge-relations
      * (US-T08) 在课程中创建新关系 (边)
+     * POST /teacher/courses/{courseId}/knowledge-relations
      */
     @PostMapping("/courses/{courseId}/knowledge-relations")
     public ResponseEntity<RelationResponseDto> createRelation(
@@ -78,8 +78,8 @@ public class KnowledgeGraphController {
     }
 
     /**
-     * DELETE /teacher/knowledge-relations/{relationId}
      * (US-T10) 删除一个关系 (边)
+     * DELETE /teacher/knowledge-relations/{relationId}
      */
     @DeleteMapping("/knowledge-relations/{relationId}")
     public ResponseEntity<Void> deleteRelation(@PathVariable Integer relationId) {
@@ -89,6 +89,10 @@ public class KnowledgeGraphController {
         return ResponseEntity.noContent().build(); // 返回 204
     }
 
+    /**
+     * (US-T09) 获取课程的完整图谱 (节点+边)
+     * GET /teacher/courses/{courseId}/graph
+     */
     @GetMapping("/courses/{courseId}/graph")
     public ResponseEntity<GraphDto> getGraphForCourse(@PathVariable Integer courseId) {
 

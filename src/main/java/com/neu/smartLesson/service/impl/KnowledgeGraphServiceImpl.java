@@ -6,11 +6,11 @@ import com.neu.smartLesson.dto.KnowledgePointDto;
 import com.neu.smartLesson.dto.RelationResponseDto;
 import com.neu.smartLesson.exception.RegistrationException;
 import com.neu.smartLesson.exception.ResourceNotFoundException;
-import com.neu.smartLesson.exception.UnauthorizedException;
 import com.neu.smartLesson.mapper.*;
 import com.neu.smartLesson.model.Course;
 import com.neu.smartLesson.model.KnowledgePoint;
 import com.neu.smartLesson.model.KnowledgeRelation;
+import com.neu.smartLesson.service.CourseService;
 import com.neu.smartLesson.service.KnowledgeGraphService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
     private KnowledgePointMapper kpMapper;
 
     @Autowired
-    private CourseMapper courseMapper;
+    private CourseService courseService;
 
     @Autowired
     private KnowledgePointDtoMapper kDtoMapper;
@@ -146,25 +146,19 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
         List<KnowledgeRelation> edges = krMapper.findRelationsByCourseId(courseId);
 
         // 转换 DTO
-        GraphDto graph = GraphDto.builder()
+
+        return GraphDto.builder()
                 .nodes(kDtoMapper.toDtoList(nodes))
                 .edges(krDtoMapper.toDtoList(edges))
                 .build();
-
-        return graph;
     }
 
     /**
      * 辅助方法：检查一个课程是否属于某个教师
      */
     private Course checkCourseOwnership(Integer courseId, Integer teacherId) {
-        Course course = courseMapper.findCourseById(courseId) // 我们需要在 CourseMapper 中添加 findCourseById
-                .orElseThrow(() -> new ResourceNotFoundException("课程 (Course) 未找到, ID: " + courseId));
-
-        if (!Objects.equals(course.getCreatorId(), teacherId)) {
-            throw new UnauthorizedException("您 (ID: " + teacherId + ") 无权操作此课程 (ID: " + courseId + ")");
-        }
-        return course;
+        // 将鉴权委托给 CourseService
+        return courseService.checkCourseOwnership(courseId, teacherId);
     }
 
     /**
