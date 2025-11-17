@@ -15,21 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService; // 注入我们的实现
+    private UserDetailsServiceImpl userDetailsService;
 
-    /**
-     * 【关键修复】
-     * 解决 "No qualifying bean of type 'AuthenticationManager'" 错误。
-     * 我们从 AuthenticationConfiguration 中获取 AuthenticationManager。
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * 告诉 Spring Security 如何获取用户信息以及使用哪种密码编码器。
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -38,11 +30,6 @@ public class ApplicationConfig {
         return authProvider;
     }
 
-    /**
-     * 密码编码器 Bean。
-     * 我们使用 BCrypt。
-     * (重要提示: 数据库中存储的密码必须是 BCrypt 加密过的)
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
