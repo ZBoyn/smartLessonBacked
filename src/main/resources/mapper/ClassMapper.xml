@@ -29,4 +29,9 @@
         semester DESC, class_name;
     </select>
 
+    <select id="findClassById" parameterType="int"
+            resultType="com.neu.smartLesson.model.CourseClass">
+        SELECT * FROM Classes WHERE class_id = #{classId}
+    </select>
+
 </mapper>
