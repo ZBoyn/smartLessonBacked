@@ -12,7 +12,7 @@
             password_hash,
             full_name,
             email,
-            role,
+            UPPER(role) as role,
             created_at
         FROM
             Users
