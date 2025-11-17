@@ -2,6 +2,7 @@ package com.neu.smartLesson.service;
 
 import com.neu.smartLesson.dto.LoginRequest;
 import com.neu.smartLesson.dto.LoginResponse;
+import com.neu.smartLesson.dto.RegisterRequest;
 
 public interface AuthService {
 
@@ -11,4 +12,6 @@ public interface AuthService {
      * @return 登录响应 DTO (包含 Token)
      */
     LoginResponse login(LoginRequest loginRequest);
+
+    void register(RegisterRequest registerRequest);
 }

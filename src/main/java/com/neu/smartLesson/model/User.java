@@ -18,18 +18,13 @@ import java.util.List;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    // 这些属性将由 MyBatis 通过 XML 映射
     private Integer userId;
     private String username;
-    private String passwordHash; // 对应 'password_hash'
-    private String fullName;     // 对应 'full_name'
+    private String passwordHash;
+    private String fullName;
     private String email;
     private Role role;
-    private Timestamp createdAt;  // 对应 'created_at'
-
-    // =================================================================
-    // 实现 UserDetails 接口的方法 (无变化)
-    // =================================================================
+    private Timestamp createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

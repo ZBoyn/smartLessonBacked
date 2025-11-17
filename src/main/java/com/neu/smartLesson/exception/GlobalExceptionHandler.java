@@ -14,7 +14,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * 捕获登录认证失败 (例如: 密码错误)
+     * 捕获登录认证失败
      * 来自 UserDetailsServiceImpl 或 AuthenticationManager
      */
     @ExceptionHandler(AuthenticationException.class)
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 捕获 DTO 校验失败 (例如: @NotBlank)
+     * 捕获 DTO 校验失败
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleGlobalException(Exception ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", "服务器内部错误");
-        error.put("message", ex.getMessage()); // 调试时可以打开，生产环境建议关闭
+        error.put("message", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

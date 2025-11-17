@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component // 声明为 Spring Bean
+@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -35,13 +35,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // 1. 检查 'Authorization' 头是否存在或是否以 'Bearer ' 开头
+        // 检查 'Authorization' 头是否存在或是否以 'Bearer ' 开头
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response); // 如果没有 Token，放行给下一个过滤器
             return;
         }
 
-        // 2. 提取 Token
+        // 提取 Token
         final String jwt = authHeader.substring(7); // "Bearer ".length() == 7
         final String username;
 
@@ -54,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
 
-        // 3. 验证 Token
+        // 验证 Token
         // 检查用户名不为空，且 SecurityContext 中目前没有认证信息
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -65,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 // 创建一个 Spring Security 认证凭证
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null, // 凭证 (密码) 为 null，因为我们是用 Token 认证
+                        null, // 凭证 (密码) 为 null，因为是用 Token 认证
                         userDetails.getAuthorities()
                 );
 
@@ -78,7 +78,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // 4. 继续执行过滤器链
+        // 继续执行过滤器链
         filterChain.doFilter(request, response);
     }
 }

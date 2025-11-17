@@ -14,32 +14,33 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // 启用 @PreAuthorize 等方法级安全注解 (可选但推荐)
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthFilter jwtAuthFilter; // 我们的 JWT 过滤器
+    private JwtAuthFilter jwtAuthFilter;
 
     @Autowired
-    private AuthenticationProvider authenticationProvider; // 我们在 ApplicationConfig 中定义的 Bean
+    private AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. 禁用 CSRF (因为我们使用 JWT, API 是无状态的)
+                // 禁用 CSRF (因为我们使用 JWT, API 是无状态的)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // 2. 定义 API 路径的访问权限
+                // 定义 API 路径的访问权限
                 .authorizeHttpRequests(auth -> auth
-                        // 公开白名单: 登录接口, API文档(Swagger)
+                        // 公开白名单: 登录注册接口, API文档(Swagger)
                         .requestMatchers(
                                 "/auth/login",
+                                "/auth/register",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // 角色权限示例: 假设教师端 API (您可以根据需要调整)
+                        // 角色权限: 教师端 API
                         .requestMatchers("/teacher/**").hasRole("teacher")
                         .requestMatchers("/student/**").hasRole("student")
 
@@ -47,16 +48,16 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // 3. 设置 Session 管理为无状态 (STATELESS)
+                // 设置 Session 管理为无状态 (STATELESS)
                 // Spring Security 不会创建或使用 HttpSession
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // 4. 注册我们的 AuthenticationProvider
+                // 注册的 AuthenticationProvider
                 .authenticationProvider(authenticationProvider)
 
-                // 5. 【关键】将我们的 JWT 过滤器添加到 Spring Security 过滤器链中
+                // 将 JWT 过滤器添加到 Spring Security 过滤器链中
                 // 放在 UsernamePasswordAuthenticationFilter 之前
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
