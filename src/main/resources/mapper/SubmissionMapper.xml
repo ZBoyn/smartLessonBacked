@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neu.smartLesson.mapper.SubmissionMapper">
+
+    <resultMap id="SubmissionMap" type="com.neu.smartLesson.model.Submission">
+        <id property="submissionId" column="submission_id"/>
+        <result property="assessmentId" column="assessment_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="status" column="status"/>
+        <result property="submittedAt" column="submitted_at"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="isPublishedToStudent" column="is_published_to_student"/>
+    </resultMap>
+
+    <insert id="insertSubmission" parameterType="com.neu.smartLesson.model.Submission"
+            useGeneratedKeys="true" keyProperty="submissionId">
+        INSERT INTO Submissions (assessment_id, student_id, status, submitted_at)
+        VALUES (#{assessmentId}, #{studentId}, #{status}, #{submittedAt})
+    </insert>
+
+    <update id="updateSubmission" parameterType="com.neu.smartLesson.model.Submission">
+        UPDATE Submissions
+        SET status = #{status}, submitted_at = #{submittedAt}, total_score = #{totalScore}
+        WHERE submission_id = #{submissionId}
+    </update>
+
+    <update id="updateScoreAndStatus" parameterType="com.neu.smartLesson.model.Submission">
+        UPDATE Submissions
+        SET
+            total_score = #{totalScore},
+            status = #{status}
+        WHERE
+            submission_id = #{submissionId}
+    </update>
+
+    <select id="findByAssessmentIdAndStudentId" resultMap="SubmissionMap">
+        SELECT * FROM Submissions
+        WHERE assessment_id = #{assessmentId} AND student_id = #{studentId}
+    </select>
+
+    <select id="findById" resultMap="SubmissionMap">
+        SELECT * FROM Submissions WHERE submission_id = #{submissionId}
+    </select>
+    <select id="findSummaryByAssessmentId" resultType="com.neu.smartLesson.dto.StudentSubmissionSummaryDto">
+        SELECT
+            s.submission_id AS submissionId,
+            s.student_id AS studentId,
+            u.full_name AS studentName,
+            s.status,
+            s.submitted_at AS submittedAt,
+            s.total_score AS totalScore
+        FROM Submissions s
+                 JOIN Users u ON s.student_id = u.user_id
+        WHERE s.assessment_id = #{assessmentId}
+        ORDER BY s.submitted_at DESC
+    </select>
+</mapper>

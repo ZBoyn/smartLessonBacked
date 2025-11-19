@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neu.smartLesson.mapper.AnswerMapper">
+
+    <insert id="upsertAnswer" parameterType="com.neu.smartLesson.model.Answer"
+            useGeneratedKeys="true" keyProperty="answerId">
+        INSERT INTO Answers (submission_id, question_id, answer_text, file_path)
+        VALUES (#{submissionId}, #{questionId}, #{answerText}, #{filePath})
+        ON DUPLICATE KEY UPDATE
+                             answer_text = VALUES(answer_text),
+                             file_path = VALUES(file_path)
+    </insert>
+    <update id="updateAnswerScore" parameterType="com.neu.smartLesson.model.Answer">
+        UPDATE Answers
+        SET score = #{score}, feedback = #{feedback}
+        WHERE answer_id = #{answerId}
+    </update>
+
+    <select id="calculateTotalScore" resultType="java.math.BigDecimal">
+        SELECT SUM(score) FROM Answers WHERE submission_id = #{submissionId}
+    </select>
+
+    <select id="findSubmissionIdByAnswerId" resultType="int">
+        SELECT submission_id FROM Answers WHERE answer_id = #{answerId}
+    </select>
+
+    <select id="findBySubmissionIdAndQuestionId" resultType="com.neu.smartLesson.model.Answer">
+        SELECT
+            answer_id AS answerId,
+            submission_id AS submissionId,
+            question_id AS questionId,
+            answer_text AS answerText,
+            file_path AS filePath,
+            score
+        FROM Answers
+        WHERE submission_id = #{submissionId} AND question_id = #{questionId}
+    </select>
+
+    <insert id="insertBatchAnswerOptions">
+        INSERT INTO AnswerOptions (answer_id, option_id)
+        VALUES
+        <foreach collection="options" item="opt" separator=",">
+            (#{opt.answerId}, #{opt.optionId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteAnswerOptionsByAnswerId">
+        DELETE FROM AnswerOptions WHERE answer_id = #{answerId}
+    </delete>
+</mapper>

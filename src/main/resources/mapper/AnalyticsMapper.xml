@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neu.smartLesson.mapper.AnalyticsMapper">
+
+    <select id="analyzeClassMasteryByAssessment" resultType="com.neu.smartLesson.dto.analysis.KpMasteryDto">
+        SELECT
+            kp.kp_id AS kpId,
+            kp.name AS kpName,
+
+            SUM(aq.points) AS totalPointsPossible,
+
+            SUM(ans.score) AS totalPointsObtained,
+
+            IFNULL(SUM(ans.score) / NULLIF(SUM(aq.points), 0), 0) AS masteryRate
+
+        FROM Answers ans
+                 JOIN Submissions sub ON ans.submission_id = sub.submission_id
+                 JOIN AssessmentQuestions aq ON sub.assessment_id = aq.assessment_id AND ans.question_id = aq.question_id
+                 JOIN QuestionKnowledgePoints qkp ON ans.question_id = qkp.question_id
+                 JOIN KnowledgePoints kp ON qkp.kp_id = kp.kp_id
+
+        WHERE sub.assessment_id = #{assessmentId}
+          AND sub.status = 'graded' GROUP BY kp.kp_id, kp.name
+    </select>
+
+</mapper>

@@ -10,6 +10,7 @@
  * 1. 用户与课程管理
  * =================================================================
  */
+USE smartlesson;
 
 -- 用户表 (教师, 学生)
 CREATE TABLE Users (
@@ -379,3 +380,6 @@ UPDATE Submissions SET `status` = 'graded', total_score = 78.00, is_published_to
 -- 12. 更新期中测试总分 (US27)
 UPDATE Submissions SET `status` = 'graded', total_score = 20.00, is_published_to_student = 1 WHERE submission_id = 1; -- 李明
 UPDATE Submissions SET `status` = 'graded', total_score = 0.00, is_published_to_student = 1 WHERE submission_id = 3; -- 王芳
+
+
+ALTER TABLE Answers ADD COLUMN feedback TEXT NULL COMMENT '教师或AI的评语';
