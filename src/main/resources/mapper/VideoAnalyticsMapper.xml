@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neu.smartLesson.mapper.VideoAnalyticsMapper">
+
+    <resultMap id="VideoAnalyticsMap" type="com.neu.smartLesson.model.VideoAnalytics">
+        <id property="analyticsId" column="analytics_id"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="studentId" column="student_id"/>
+        <result property="completionRate" column="completion_rate"/>
+        <result property="heatmapData" column="heatmap_data"/>
+        <result property="lastWatchedAt" column="last_watched_at"/>
+    </resultMap>
+
+    <select id="findByResourceIds" resultMap="VideoAnalyticsMap">
+        SELECT * FROM VideoAnalytics
+        WHERE resource_id IN
+        <foreach collection="resourceIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="summarizeEngagementByClass" resultType="map">
+        SELECT
+            e.student_id AS studentId,
+            IFNULL(SUM(va.completion_rate), 0) AS engagementScore
+        FROM Enrollments e
+                 JOIN Classes c ON e.class_id = c.class_id
+                 JOIN Courses co ON c.course_id = co.course_id
+                 LEFT JOIN Resources r ON r.course_id = co.course_id AND r.resource_type = 'video'
+                 LEFT JOIN VideoAnalytics va
+                           ON va.student_id = e.student_id AND va.resource_id = r.resource_id
+        WHERE c.class_id = #{classId}
+        GROUP BY e.student_id
+    </select>
+
+</mapper>
+

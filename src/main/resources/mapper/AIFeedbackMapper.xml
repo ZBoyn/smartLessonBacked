@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neu.smartLesson.mapper.AIFeedbackMapper">
+
+    <insert id="insert" parameterType="com.neu.smartLesson.model.AIFeedback" useGeneratedKeys="true" keyProperty="feedbackId">
+        INSERT INTO AIFeedback (
+            answer_id, ai_generated_score, ai_generated_summary, 
+            ai_generated_suggestions, dimensions, 
+            teacher_revised_score, teacher_revised_feedback, is_revised_by_teacher
+        ) VALUES (
+            #{answerId}, #{aiGeneratedScore}, #{aiGeneratedSummary},
+            #{aiGeneratedSuggestions}, #{dimensions},
+            #{teacherRevisedScore}, #{teacherRevisedFeedback}, #{isRevisedByTeacher}
+        )
+    </insert>
+
+    <select id="findByAnswerId" resultType="com.neu.smartLesson.model.AIFeedback">
+        SELECT 
+            feedback_id AS feedbackId,
+            answer_id AS answerId,
+            ai_generated_score AS aiGeneratedScore,
+            ai_generated_summary AS aiGeneratedSummary,
+            ai_generated_suggestions AS aiGeneratedSuggestions,
+            dimensions,
+            teacher_revised_score AS teacherRevisedScore,
+            teacher_revised_feedback AS teacherRevisedFeedback,
+            is_revised_by_teacher AS isRevisedByTeacher
+        FROM AIFeedback
+        WHERE answer_id = #{answerId}
+    </select>
+
+    <update id="updateTeacherRevision" parameterType="com.neu.smartLesson.model.AIFeedback">
+        UPDATE AIFeedback
+        SET 
+            teacher_revised_score = #{teacherRevisedScore},
+            teacher_revised_feedback = #{teacherRevisedFeedback},
+            is_revised_by_teacher = #{isRevisedByTeacher}
+        WHERE feedback_id = #{feedbackId}
+  </update>
+
+    <select id="findDimensionsByAssessmentId" resultType="string">
+        SELECT af.dimensions
+        FROM AIFeedback af
+                 JOIN Answers a ON af.answer_id = a.answer_id
+                 JOIN Submissions s ON a.submission_id = s.submission_id
+        WHERE s.assessment_id = #{assessmentId}
+    </select>
+
+</mapper>
+

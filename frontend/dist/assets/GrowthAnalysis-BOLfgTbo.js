@@ -1,0 +1,1 @@
+import{_ as t,j as s,o as n,f as r,e as a,b as c}from"./index-BotqV5dR.js";const _={},l={class:"page-container"};function p(i,e){const o=c("el-empty");return n(),s("div",l,[e[0]||(e[0]=r("h2",null,"成长档案",-1)),a(o,{description:"学情分析模块正在建设中..."})])}const m=t(_,[["render",p]]);export{m as default};
