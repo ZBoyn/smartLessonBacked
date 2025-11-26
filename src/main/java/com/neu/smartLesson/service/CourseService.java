@@ -28,4 +28,9 @@ public interface CourseService {
      * @return 返回 Course 对象以便复用
      */
     Course checkCourseOwnership(Integer courseId, Integer teacherId);
+
+    /**
+     * 获取课程详情
+     */
+    CourseResponseDto getCourseDetails(Integer courseId, Integer teacherId);
 }

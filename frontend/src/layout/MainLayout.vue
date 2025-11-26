@@ -34,6 +34,18 @@
           <el-icon><DataAnalysis /></el-icon>
           <template #title>全局学情分析</template>
         </el-menu-item>
+        <el-menu-item index="/knowledge-graph">
+          <el-icon><Connection /></el-icon>
+          <template #title>知识图谱</template>
+        </el-menu-item>
+        <el-menu-item index="/grading">
+          <el-icon><EditPen /></el-icon>
+          <template #title>智能批改</template>
+        </el-menu-item>
+        <el-menu-item index="/questions">
+          <el-icon><FolderChecked /></el-icon>
+          <template #title>题库管理</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 

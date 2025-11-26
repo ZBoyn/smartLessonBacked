@@ -1,8 +1,10 @@
 package com.neu.smartLesson.dto;
 
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 public class StudentSubmissionSummaryDto {
@@ -12,4 +14,5 @@ public class StudentSubmissionSummaryDto {
     private String status;      // 'submitted', 'graded'
     private Timestamp submittedAt;
     private BigDecimal totalScore;
+    private List<AnswerReviewDto> answers;
 }

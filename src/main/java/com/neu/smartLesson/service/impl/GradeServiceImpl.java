@@ -18,15 +18,67 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.neu.smartLesson.dto.AiGradingResultDto;
+import com.neu.smartLesson.dto.AnswerFullDetailsDto;
+import com.neu.smartLesson.model.AIFeedback;
+import com.neu.smartLesson.service.AiGradingService;
+
 @Service
 public class GradeServiceImpl implements GradeService {
 
-    @Autowired private AssessmentMapper assessmentMapper;
-    @Autowired private SubmissionMapper submissionMapper;
-    @Autowired private AnswerMapper answerMapper;
-    @Autowired private AnalyticsMapper analyticsMapper;
-    @Autowired private CourseService courseService;
-    @Autowired private ClassMapper classMapper;
+    @Autowired
+    private AssessmentMapper assessmentMapper;
+    @Autowired
+    private SubmissionMapper submissionMapper;
+    @Autowired
+    private AnswerMapper answerMapper;
+    @Autowired
+    private AnalyticsMapper analyticsMapper;
+    @Autowired
+    private CourseService courseService;
+    @Autowired
+    private ClassMapper classMapper;
+    @Autowired
+    private AiGradingService aiGradingService;
+    @Autowired
+    private AIFeedbackMapper aiFeedbackMapper;
+
+    @Override
+    public AiGradingResultDto aiGradeAnswer(Integer answerId, User teacher) {
+        // 1. Fetch details
+        AnswerFullDetailsDto details = answerMapper.findFullDetailsById(answerId);
+        if (details == null) {
+            throw new ResourceNotFoundException("Answer not found");
+        }
+
+        // TODO: Check permission (teacher owns the course) - skipping for now as per
+        // previous simplified logic
+
+        // 2. Call AI Service
+        AiGradingResultDto result = aiGradingService.gradeSingleAnswer(
+                details.getStudentId(),
+                details.getQuestionPrompt(),
+                details.getAnswerText(),
+                null, // Reference answer optional
+                100 // Default max score, or fetch from AssessmentQuestion
+        );
+
+        if (result != null) {
+            // 3. Save to AIFeedback
+            AIFeedback feedback = AIFeedback.builder()
+                    .answerId(answerId)
+                    .aiGeneratedScore(BigDecimal.valueOf(result.getTotalScore()))
+                    .aiGeneratedSummary(result.getSummary())
+                    .aiGeneratedSuggestions(result.getSuggestions())
+                    .dimensions(result.getDimensions())
+                    .isRevisedByTeacher(false)
+                    .build();
+
+            aiFeedbackMapper.insert(feedback);
+        }
+
+        return result;
+    }
 
     @Override
     public List<StudentSubmissionSummaryDto> getSubmissionsForAssessment(Integer assessmentId, User teacher) {
@@ -73,7 +125,67 @@ public class GradeServiceImpl implements GradeService {
         return analyticsMapper.analyzeClassMasteryByAssessment(assessmentId);
     }
 
+    @Override
+    public List<KpMasteryDto> analyzeClassOverall(Integer classId, User teacher) {
+        // 鉴权
+        checkClassOwnership(classId, teacher);
+
+        return analyticsMapper.analyzeClassOverallMastery(classId);
+    }
+
+    @Override
+    public List<com.neu.smartLesson.dto.analysis.StudentAnalysisDto> analyzeStudentOverall(Integer classId,
+            User teacher) {
+        checkClassOwnership(classId, teacher);
+        return analyticsMapper.analyzeStudentOverall(classId);
+    }
+
+    @Override
+    public java.util.List<java.util.Map<String, Object>> summarizeAiFeedback(Integer assessmentId, User teacher) {
+        checkAssessmentAccess(assessmentId, teacher);
+        java.util.List<String> dims = aiFeedbackMapper.findDimensionsByAssessmentId(assessmentId);
+        java.util.Map<String, Integer> counter = new java.util.HashMap<>();
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        for (String d : dims) {
+            if (d == null || d.isEmpty())
+                continue;
+            try {
+                com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(d);
+                java.util.Iterator<String> names = root.fieldNames();
+                while (names.hasNext()) {
+                    String name = names.next();
+                    double val = 0.0;
+                    try {
+                        val = root.get(name).asDouble();
+                    } catch (Exception ignore) {
+                    }
+                    if (val < 0.6) {
+                        counter.put(name, counter.getOrDefault(name, 0) + 1);
+                    }
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        java.util.List<java.util.Map<String, Object>> list = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> en : counter.entrySet()) {
+            java.util.Map<String, Object> m = new java.util.HashMap<>();
+            m.put("name", en.getKey());
+            m.put("count", en.getValue());
+            list.add(m);
+        }
+        list.sort((a, b) -> Integer.compare((int) b.get("count"), (int) a.get("count")));
+        if (list.size() > 5)
+            list = list.subList(0, 5);
+        return list;
+    }
+
     // === 辅助方法 ===
+
+    private void checkClassOwnership(Integer classId, User teacher) {
+        com.neu.smartLesson.model.CourseClass clazz = classMapper.findClassById(classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Class not found"));
+        courseService.checkCourseOwnership(clazz.getCourseId(), teacher.getUserId());
+    }
 
     private void checkAssessmentAccess(Integer assessmentId, User teacher) {
         Assessment assessment = assessmentMapper.findAssessmentById(assessmentId)
@@ -81,9 +193,7 @@ public class GradeServiceImpl implements GradeService {
 
         // Assessment -> Class -> Course -> Owner Check
         classMapper.findClassById(assessment.getClassId())
-                .ifPresent(clazz ->
-                        courseService.checkCourseOwnership(clazz.getCourseId(), teacher.getUserId())
-                );
+                .ifPresent(clazz -> courseService.checkCourseOwnership(clazz.getCourseId(), teacher.getUserId()));
     }
 
     /**

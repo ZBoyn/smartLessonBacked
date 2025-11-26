@@ -93,4 +93,17 @@ public class QuestionController {
         questionService.deleteQuestion(questionId, currentUser);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * (Smart Assemble) 智能组卷
+     * POST /teacher/questions/generate
+     */
+    @PostMapping("/questions/generate")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<com.neu.smartLesson.dto.AssessmentResponseDto> generatePaper(
+            @RequestBody com.neu.smartLesson.dto.GeneratePaperRequestDto dto,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ResponseEntity.ok(questionService.generatePaper(dto, currentUser));
+    }
 }

@@ -38,6 +38,8 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
     @Autowired
     private KnowledgeRelationDtoMapper krDtoMapper;
 
+    @Autowired
+    private com.neu.smartLesson.mapper.QuestionKnowledgePointMapper qkpMapper;
 
     @Override
     @Transactional // 确保操作的原子性
@@ -84,7 +86,6 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
         // 删除“节点”
         kpMapper.deleteKnowledgePointById(kpId);
     }
-
 
     @Override
     @Transactional
@@ -148,8 +149,23 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
 
         // 转换 DTO
 
+        java.util.List<com.neu.smartLesson.dto.KnowledgePointDto> nodeDtos = kDtoMapper.toDtoList(nodes);
+        java.util.Map<Integer, Integer> countMap = new java.util.HashMap<>();
+        java.util.List<java.util.Map<String, Object>> rows = qkpMapper.countQuestionsByKpForCourse(courseId);
+        for (java.util.Map<String, Object> r : rows) {
+            try {
+                Integer kpId = Integer.parseInt(r.get("kpId").toString());
+                Integer cnt = Integer.parseInt(r.get("cnt").toString());
+                countMap.put(kpId, cnt);
+            } catch (Exception ignore) {
+            }
+        }
+        for (com.neu.smartLesson.dto.KnowledgePointDto nd : nodeDtos) {
+            nd.setQuestionCount(countMap.getOrDefault(nd.getKpId(), 0));
+        }
+
         return GraphDto.builder()
-                .nodes(kDtoMapper.toDtoList(nodes))
+                .nodes(nodeDtos)
                 .edges(krDtoMapper.toDtoList(edges))
                 .build();
     }

@@ -24,4 +24,6 @@ public class KnowledgePointDto {
 
     // 我们在响应时会填充这个字段
     private Integer courseId;
+
+    private Integer questionCount;
 }

@@ -28,6 +28,8 @@ public interface ResourceMapper {
      */
     List<Resource> findResourcesByCourseId(@Param("courseId") Integer courseId);
 
+    List<Resource> findVideoResourcesByCourseId(@Param("courseId") Integer courseId);
+
     /**
      * 删除一个资源 (DELETE)
      * @param resourceId 资源ID

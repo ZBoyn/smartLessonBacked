@@ -23,4 +23,78 @@
           AND sub.status = 'graded' GROUP BY kp.kp_id, kp.name
     </select>
 
+    <select id="analyzeClassOverallMastery" resultType="com.neu.smartLesson.dto.analysis.KpMasteryDto">
+        SELECT
+            kp.kp_id AS kpId,
+            kp.name AS kpName,
+            SUM(aq.points) AS totalPointsPossible,
+            SUM(ans.score) AS totalPointsObtained,
+            IFNULL(SUM(ans.score) / NULLIF(SUM(aq.points), 0), 0) AS masteryRate
+        FROM Answers ans
+                 JOIN Submissions sub ON ans.submission_id = sub.submission_id
+                 JOIN Assessments ass ON sub.assessment_id = ass.assessment_id
+                 JOIN AssessmentQuestions aq ON sub.assessment_id = aq.assessment_id AND ans.question_id = aq.question_id
+                 JOIN QuestionKnowledgePoints qkp ON ans.question_id = qkp.question_id
+                 JOIN KnowledgePoints kp ON qkp.kp_id = kp.kp_id
+        WHERE ass.class_id = #{classId}
+          AND sub.status = 'graded'
+        GROUP BY kp.kp_id, kp.name
+    </select>
+
+    <select id="analyzeStudentOverall" resultType="com.neu.smartLesson.dto.analysis.StudentAnalysisDto">
+        SELECT
+            u.user_id AS studentId,
+            u.full_name AS name,
+            IFNULL(AVG(sub.total_score), 0) AS avgScore,
+            IFNULL(sm.masteryRate, 0) AS masteryRate,
+            IFNULL(st.submissionRate, 0) AS submissionRate
+        FROM Users u
+                 JOIN Enrollments e ON u.user_id = e.student_id
+                 LEFT JOIN Submissions sub ON u.user_id = sub.student_id AND sub.status = 'graded'
+                 LEFT JOIN (
+            SELECT
+                sub.student_id AS student_id,
+                IFNULL(SUM(ans.score) / NULLIF(SUM(aq.points), 0), 0) AS masteryRate
+            FROM Answers ans
+                     JOIN Submissions sub ON ans.submission_id = sub.submission_id AND sub.status = 'graded'
+                     JOIN Assessments ass ON sub.assessment_id = ass.assessment_id
+                     JOIN AssessmentQuestions aq ON sub.assessment_id = aq.assessment_id AND ans.question_id = aq.question_id
+            WHERE ass.class_id = #{classId}
+            GROUP BY sub.student_id
+        ) sm ON sm.student_id = u.user_id
+                 LEFT JOIN (
+            SELECT
+                e.student_id AS student_id,
+                IFNULL(SUM(CASE WHEN sub.submission_id IS NOT NULL THEN 1 ELSE 0 END)
+                    / NULLIF(COUNT(DISTINCT ass.assessment_id), 0), 0) AS submissionRate
+            FROM Enrollments e
+                     JOIN Classes c ON e.class_id = c.class_id
+                     LEFT JOIN Assessments ass ON ass.class_id = c.class_id
+                     LEFT JOIN Submissions sub ON sub.assessment_id = ass.assessment_id AND sub.student_id = e.student_id
+            WHERE c.class_id = #{classId}
+            GROUP BY e.student_id
+        ) st ON st.student_id = u.user_id
+        WHERE e.class_id = #{classId}
+        GROUP BY u.user_id, u.full_name, sm.masteryRate, st.submissionRate
+    </select>
+
+    <select id="analyzeStudentKpMastery" resultType="com.neu.smartLesson.dto.analysis.StudentKpMasteryDto">
+        SELECT
+            kp.kp_id     AS kpId,
+            kp.name      AS kpName,
+            sub.student_id AS studentId,
+            u.full_name  AS studentName,
+            IFNULL(SUM(ans.score) / NULLIF(SUM(aq.points), 0), 0) AS masteryRate
+        FROM Answers ans
+                 JOIN Submissions sub ON ans.submission_id = sub.submission_id AND sub.status = 'graded'
+                 JOIN Assessments ass ON sub.assessment_id = ass.assessment_id
+                 JOIN AssessmentQuestions aq
+                      ON ass.assessment_id = aq.assessment_id AND ans.question_id = aq.question_id
+                 JOIN QuestionKnowledgePoints qkp ON ans.question_id = qkp.question_id
+                 JOIN KnowledgePoints kp ON qkp.kp_id = kp.kp_id
+                 JOIN Users u ON sub.student_id = u.user_id
+        WHERE ass.class_id = #{classId}
+        GROUP BY kp.kp_id, kp.name, sub.student_id, u.full_name
+    </select>
+
 </mapper>

@@ -15,7 +15,15 @@
 
     <select id="findResourcesByCourseId" parameterType="int"
             resultType="com.neu.smartLesson.model.Resource">
-        SELECT * FROM Resources WHERE course_id = #{courseId} ORDER BY created_at
+        SELECT * FROM Resources WHERE course_id = #{courseId} ORDER BY resource_id DESC
+    </select>
+
+    <select id="findVideoResourcesByCourseId" parameterType="int"
+            resultType="com.neu.smartLesson.model.Resource">
+        SELECT * FROM Resources
+        WHERE course_id = #{courseId}
+          AND resource_type = 'video'
+        ORDER BY resource_id DESC
     </select>
 
     <select id="findResourceById" parameterType="int"

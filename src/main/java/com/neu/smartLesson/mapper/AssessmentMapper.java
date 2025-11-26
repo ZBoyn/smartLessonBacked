@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Optional; // 导入
+import java.util.Optional;
 
 @Mapper
 public interface AssessmentMapper {
@@ -26,4 +26,9 @@ public interface AssessmentMapper {
      * 更新测评状态 (发布)
      */
     int updateAssessmentStatus(Assessment assessment);
+
+    /**
+     * 查找班级下的所有测评
+     */
+    List<Assessment> findByClassId(@Param("classId") Integer classId);
 }

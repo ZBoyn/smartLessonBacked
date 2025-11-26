@@ -2,6 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.neu.smartLesson.mapper.AnswerMapper">
 
+    <select id="findFullDetailsById" resultType="com.neu.smartLesson.dto.AnswerFullDetailsDto">
+        SELECT
+            a.answer_id AS answerId,
+            a.answer_text AS answerText,
+            q.prompt AS questionPrompt,
+            CAST(s.student_id AS CHAR) AS studentId
+        FROM Answers a
+        JOIN Questions q ON a.question_id = q.question_id
+        JOIN Submissions s ON a.submission_id = s.submission_id
+        WHERE a.answer_id = #{answerId}
+    </select>
+
     <insert id="upsertAnswer" parameterType="com.neu.smartLesson.model.Answer"
             useGeneratedKeys="true" keyProperty="answerId">
         INSERT INTO Answers (submission_id, question_id, answer_text, file_path)

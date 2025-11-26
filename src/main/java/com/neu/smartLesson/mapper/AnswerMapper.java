@@ -9,8 +9,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import com.neu.smartLesson.dto.AnswerFullDetailsDto;
+
 @Mapper
 public interface AnswerMapper {
+    // ... existing methods ...
+    
+    AnswerFullDetailsDto findFullDetailsById(@Param("answerId") Integer answerId);
+
     // 插入或更新答案主体
     void upsertAnswer(Answer answer);
 

@@ -49,6 +49,21 @@ const routes = [
         component: () => import('../views/StudyAnalysis.vue'),
         meta: { title: '全局学情分析' }
       }
+      ,{
+        path: 'knowledge-graph',
+        component: () => import('../views/KnowledgeGraph.vue'),
+        meta: { title: '知识图谱' }
+      }
+      ,{
+        path: 'grading',
+        component: () => import('../views/AiGrading.vue'),
+        meta: { title: '智能批改' }
+      }
+      ,{
+        path: 'questions',
+        component: () => import('../views/SmartQuestions.vue'),
+        meta: { title: '题库管理' }
+      }
     ]
   },
   // Teacher Course Context Routes (Nested)
@@ -84,7 +99,7 @@ const routes = [
       },
       {
         path: 'questions',
-        name: 'CourseQuestions',
+        name: 'SmartQuestions',
         component: CourseQuestions,
         meta: { title: '智能题库' }
       },
@@ -93,6 +108,12 @@ const routes = [
         name: 'CourseAssessments',
         component: () => import('../views/AiGrading.vue'), // 暂时复用 AI Grading 页面作为入口
         meta: { title: '考试测评' }
+      },
+      {
+        path: 'assessments/:assessmentId/grading',
+        name: 'AssessmentGrading',
+        component: () => import('../views/GradingView.vue'),
+        meta: { title: '作业批改' }
       }
     ]
   },
@@ -117,6 +138,12 @@ const routes = [
         path: 'assessments',
         component: () => import('../views/student/AssessmentList.vue'),
         meta: { title: '在线考试' }
+      },
+      {
+        path: 'assessments/:assessmentId',
+        name: 'StudentExam',
+        component: () => import('../views/student/StudentAssessment.vue'),
+        meta: { title: '答题' }
       },
       {
         path: 'analysis',

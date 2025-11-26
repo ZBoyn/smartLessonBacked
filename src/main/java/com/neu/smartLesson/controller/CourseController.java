@@ -22,6 +22,10 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private com.neu.smartLesson.mapper.ClassMapper classMapper;
+    @Autowired
+    private com.neu.smartLesson.mapper.EnrollmentMapper enrollmentMapper;
 
     /**
      * (US-T01) 教师创建新课程
@@ -50,6 +54,36 @@ public class CourseController {
         List<CourseResponseDto> courses = courseService.getCoursesForTeacher(teacherId);
 
         return ResponseEntity.ok(courses);
+    }
+
+    /**
+     * 获取单个课程详情
+     * GET /teacher/courses/{courseId}
+     */
+    @GetMapping("/{courseId}")
+    public ResponseEntity<CourseResponseDto> getCourseDetails(@PathVariable Integer courseId) {
+        Integer teacherId = getCurrentUserId();
+        CourseResponseDto course = courseService.getCourseDetails(courseId, teacherId);
+        return ResponseEntity.ok(course);
+    }
+
+    @GetMapping("/{courseId}/stats")
+    public ResponseEntity<java.util.Map<String, Object>> getCourseStats(@PathVariable Integer courseId) {
+        Integer teacherId = getCurrentUserId();
+        courseService.checkCourseOwnership(courseId, teacherId);
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        java.util.List<com.neu.smartLesson.model.CourseClass> classes = classMapper.findClassesByCourseId(courseId);
+        int classCount = classes == null ? 0 : classes.size();
+        int studentCount = 0;
+        if (classes != null) {
+            for (com.neu.smartLesson.model.CourseClass c : classes) {
+                Integer cnt = enrollmentMapper.countByClassId(c.getClassId());
+                studentCount += (cnt == null ? 0 : cnt);
+            }
+        }
+        stats.put("classCount", classCount);
+        stats.put("studentCount", studentCount);
+        return ResponseEntity.ok(stats);
     }
 
 

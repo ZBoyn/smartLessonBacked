@@ -59,4 +59,10 @@ public class CourseServiceImpl implements CourseService {
         }
         return course;
     }
+
+    @Override
+    public CourseResponseDto getCourseDetails(Integer courseId, Integer teacherId) {
+        Course course = checkCourseOwnership(courseId, teacherId);
+        return courseDtoMapper.toCourseResponseDto(course);
+    }
 }

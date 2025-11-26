@@ -33,7 +33,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { assessmentApi } from '../../api/modules'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const assessments = ref([])
 
 onMounted(async () => {
@@ -42,15 +44,14 @@ onMounted(async () => {
         assessments.value = res
     } catch (e) {
         assessments.value = [
-            { id: 101, title: '第一次阶段测试', courseName: 'Java 程序设计', deadline: '2023-12-01 12:00', status: 'Pending' },
-            { id: 102, title: '期末模拟考', courseName: '数据结构', deadline: '2023-12-10 10:00', status: 'Completed' }
+            { assessmentId: 101, title: '第一次阶段测试', courseName: 'Java 程序设计', deadline: '2023-12-01 12:00', status: 'Pending' },
+            { assessmentId: 102, title: '期末模拟考', courseName: '数据结构', deadline: '2023-12-10 10:00', status: 'Completed' }
         ]
     }
 })
 
 const startExam = (id) => {
-    console.log('Start exam:', id)
-    // router.push(`/student/exam/${id}`)
+    router.push({ name: 'StudentExam', params: { assessmentId: id } })
 }
 </script>
 

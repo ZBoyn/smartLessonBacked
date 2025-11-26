@@ -12,4 +12,6 @@ public interface QuestionKnowledgePointMapper {
     );
     void deleteKPsByQuestionId(@Param("questionId") Integer questionId);
     List<Integer> findKPsByQuestionId(@Param("questionId") Integer questionId);
+
+    java.util.List<java.util.Map<String, Object>> countQuestionsByKpForCourse(@Param("courseId") Integer courseId);
 }

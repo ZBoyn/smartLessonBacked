@@ -17,4 +17,12 @@
     <select id="findKPsByQuestionId" parameterType="int" resultType="int">
         SELECT kp_id FROM QuestionKnowledgePoints WHERE question_id = #{questionId}
     </select>
+
+    <select id="countQuestionsByKpForCourse" parameterType="int" resultType="map">
+        SELECT qkp.kp_id AS kpId, COUNT(*) AS cnt
+        FROM QuestionKnowledgePoints qkp
+                 JOIN Questions q ON q.question_id = qkp.question_id
+        WHERE q.course_id = #{courseId}
+        GROUP BY qkp.kp_id
+    </select>
 </mapper>

@@ -65,4 +65,8 @@
             assessment_id = #{assessmentId}
     </update>
 
+    <select id="findByClassId" resultMap="AssessmentResultMap">
+        SELECT * FROM Assessments WHERE class_id = #{classId} ORDER BY assessment_id DESC
+    </select>
+
 </mapper>

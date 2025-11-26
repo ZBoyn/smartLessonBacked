@@ -16,7 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; // Added Import
+
+import com.neu.smartLesson.dto.GeneratePaperRequestDto;
+import com.neu.smartLesson.dto.AssessmentResponseDto;
+import com.neu.smartLesson.model.Assessment;
+import com.neu.smartLesson.model.CourseClass;
+import java.util.ArrayList;
+import java.util.Collections;
+// Removed duplicate Collectors import if it existed, keeping java.util.stream.Collectors
 
 @Service
 public class QuestionServiceImpl implements QuestionService {
@@ -39,6 +47,78 @@ public class QuestionServiceImpl implements QuestionService {
     @Autowired
     private EnrollmentMapper enrollmentMapper;
 
+    @Autowired
+    private AssessmentMapper assessmentMapper;
+
+    @Autowired
+    private AssessmentQuestionMapper aqMapper;
+
+    @Autowired
+    private ClassMapper classMapper;
+
+    @Override
+    @Transactional
+    public AssessmentResponseDto generatePaper(GeneratePaperRequestDto dto, User teacher) {
+        // 1. Check Class Ownership
+        CourseClass clazz = classMapper.findClassById(dto.getClassId())
+            .orElseThrow(() -> new ResourceNotFoundException("Class not found"));
+        courseService.checkCourseOwnership(clazz.getCourseId(), teacher.getUserId());
+        
+        // 2. Get all questions for course
+        List<Question> allQuestions = questionMapper.findQuestionsByCourseId(dto.getCourseId());
+
+        // 3. Filter by KPs (if provided)
+        if (!CollectionUtils.isEmpty(dto.getKpIds())) {
+             allQuestions = allQuestions.stream().filter(q -> {
+                 List<Integer> qKps = qkpMapper.findKPsByQuestionId(q.getQuestionId());
+                 return dto.getKpIds().stream().anyMatch(qKps::contains);
+             }).collect(Collectors.toList());
+        }
+        
+        // 4. Select Questions by Type
+        List<Question> singleChoices = allQuestions.stream().filter(q -> q.getQuestionType() == QuestionType.single_choice).collect(Collectors.toList());
+        List<Question> multiChoices = allQuestions.stream().filter(q -> q.getQuestionType() == QuestionType.multi_choice).collect(Collectors.toList());
+        List<Question> subjectives = allQuestions.stream().filter(q -> q.getQuestionType() == QuestionType.short_answer || q.getQuestionType() == QuestionType.report).collect(Collectors.toList());
+
+        Collections.shuffle(singleChoices);
+        Collections.shuffle(multiChoices);
+        Collections.shuffle(subjectives);
+
+        List<Integer> selectedIds = new ArrayList<>();
+        if (dto.getSingleChoiceCount() != null)
+            selectedIds.addAll(singleChoices.stream().limit(dto.getSingleChoiceCount()).map(Question::getQuestionId).collect(Collectors.toList()));
+        if (dto.getMultiChoiceCount() != null)
+            selectedIds.addAll(multiChoices.stream().limit(dto.getMultiChoiceCount()).map(Question::getQuestionId).collect(Collectors.toList()));
+        if (dto.getSubjectiveCount() != null)
+            selectedIds.addAll(subjectives.stream().limit(dto.getSubjectiveCount()).map(Question::getQuestionId).collect(Collectors.toList()));
+        
+        if(selectedIds.isEmpty()) {
+             throw new ResourceNotFoundException("Not enough questions found matching criteria");
+        }
+
+        // 6. Create Assessment (Draft)
+        Assessment assessment = Assessment.builder()
+                .classId(dto.getClassId())
+                .title(dto.getTitle())
+                .assessmentType("exam") 
+                .status("draft")
+                .createdById(teacher.getUserId())
+                .build();
+        assessmentMapper.insertAssessment(assessment);
+
+        // 7. Add Questions
+        aqMapper.insertBatchQuestions(assessment.getAssessmentId(), selectedIds);
+
+        // 8. Return DTO
+         return AssessmentResponseDto.builder()
+                .assessmentId(assessment.getAssessmentId())
+                .classId(dto.getClassId())
+                .title(assessment.getTitle())
+                .status(assessment.getStatus())
+                .questionIds(selectedIds)
+                .build();
+    }
+
     @Override
     @Transactional
     public QuestionFullDto createQuestion(QuestionFullDto dto, Integer courseId, User teacher) {
@@ -52,8 +132,8 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = Question.builder()
                 .courseId(courseId)
                 .prompt(dto.getPrompt())
-                .questionType(dto.getQuestionType())
-                .difficulty(dto.getDifficulty())
+                .questionType(QuestionType.valueOf(dto.getQuestionType()))
+                .difficulty(Difficulty.valueOf(dto.getDifficulty()))
                 .supportsAiGrading(dto.getSupportsAiGrading())
                 .creatorId(teacher.getUserId())
                 .build();
@@ -122,8 +202,8 @@ public class QuestionServiceImpl implements QuestionService {
         QuestionFullDto fullDto = new QuestionFullDto();
         fullDto.setQuestionId(question.getQuestionId());
         fullDto.setPrompt(question.getPrompt());
-        fullDto.setQuestionType(question.getQuestionType());
-        fullDto.setDifficulty(question.getDifficulty());
+        fullDto.setQuestionType(question.getQuestionType().name());
+        fullDto.setDifficulty(question.getDifficulty().name());
         fullDto.setSupportsAiGrading(question.getSupportsAiGrading());
         fullDto.setOptions(options);
         fullDto.setKnowledgePointIds(kpIds);
@@ -142,8 +222,8 @@ public class QuestionServiceImpl implements QuestionService {
 
         // 更新 Question (题干)
         question.setPrompt(dto.getPrompt());
-        question.setQuestionType(dto.getQuestionType());
-        question.setDifficulty(dto.getDifficulty());
+        question.setQuestionType(QuestionType.valueOf(dto.getQuestionType()));
+        question.setDifficulty(Difficulty.valueOf(dto.getDifficulty()));
         question.setSupportsAiGrading(dto.getSupportsAiGrading());
         questionMapper.updateQuestion(question);
 

@@ -10,35 +10,37 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.neu.smartLesson.exception.ResourceNotFoundException;
+import com.neu.smartLesson.exception.UnauthorizedException;
+import org.springframework.security.access.AccessDeniedException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * 捕获登录认证失败
-     * 来自 UserDetailsServiceImpl 或 AuthenticationManager
-     */
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Map<String, String>> handleAuthenticationException() {
+    // ... existing handlers ...
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         Map<String, String> error = new HashMap<>();
-        error.put("error", "认证失败");
-        error.put("message", "用户名或密码错误");
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        error.put("error", "资源未找到");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * 捕获 DTO 校验失败
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("error", "请求参数无效");
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedException(UnauthorizedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "无权访问");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
 
-        // 提取所有字段的错误信息
-        Map<String, String> fieldErrors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(fieldError -> fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        error.put("details", fieldErrors);
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "拒绝访问");
+        error.put("message", "您没有权限执行此操作");
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     /**

@@ -20,4 +20,7 @@ public interface QuestionService {
 
     // (Delete)
     void deleteQuestion(Integer questionId, User teacher);
+    
+    // (Generate Paper)
+    com.neu.smartLesson.dto.AssessmentResponseDto generatePaper(com.neu.smartLesson.dto.GeneratePaperRequestDto dto, User teacher);
 }

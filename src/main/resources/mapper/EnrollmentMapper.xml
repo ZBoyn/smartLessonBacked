@@ -18,4 +18,23 @@
         LIMIT 1
     </select>
 
+    <select id="countByClassId" parameterType="int" resultType="int">
+        SELECT COUNT(1) FROM Enrollments WHERE class_id = #{classId}
+    </select>
+
+    <select id="findStudentsByClassId" parameterType="int" resultType="com.neu.smartLesson.model.User">
+        SELECT
+            u.user_id,
+            u.username,
+            u.password_hash,
+            u.full_name,
+            u.email,
+            UPPER(u.role) as role,
+            u.created_at
+        FROM Users u
+                 JOIN Enrollments e ON u.user_id = e.student_id
+        WHERE e.class_id = #{classId}
+        ORDER BY u.full_name
+    </select>
+
 </mapper>

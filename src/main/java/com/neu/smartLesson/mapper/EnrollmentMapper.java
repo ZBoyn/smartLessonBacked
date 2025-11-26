@@ -14,4 +14,8 @@ public interface EnrollmentMapper {
      * @return 注册记录的数量 (0 或 1+)
      */
     Integer checkEnrollment(@Param("studentId") Integer studentId, @Param("courseId") Integer courseId);
+
+    Integer countByClassId(@Param("classId") Integer classId);
+
+    java.util.List<com.neu.smartLesson.model.User> findStudentsByClassId(@Param("classId") Integer classId);
 }
